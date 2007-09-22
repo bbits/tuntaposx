@@ -19,15 +19,11 @@
 	<key>CFBundleSignature</key>
 	<string>@@CFBUNDLESIGNATURE@@</string>
 	<key>CFBundleVersion</key>
-	<string>@@CFBUNDLEVERSION@@</string>
+	<string>1.0</string>
 	<key>OSBundleLibraries</key>
 	<dict>
-		<key>com.apple.kernel.bsd</key>
-		<string>6.0</string>
-		<key>com.apple.kernel.libkern</key>
-		<string>6.0</string>
-		<key>com.apple.kernel.mach</key>
-		<string>6.0</string>
+		<key>com.apple.kpi.mach</key>
+		<string>8.0</string>
 		<key>com.apple.kpi.bsd</key>
 		<string>8.0</string>
 		<key>com.apple.kpi.libkern</key>

@@ -5,10 +5,10 @@ TUNTAP_VERSION = 20070920
 BASE=
 
 all:	tap.kext tun.kext
-	cp -pR tap.kext pkg/tap_kext/Library/Extensions/
-	cp -pR tun.kext pkg/tun_kext/Library/Extensions/
-	cp -pR startup_item/tap pkg/startup_item/Library/StartupItems/
-	cp -pR startup_item/tun pkg/startup_item/Library/StartupItems/
+	cp -pR tap.kext pkg/tap_kext/
+	cp -pR tun.kext pkg/tun_kext/
+	cp -pR startup_item/tap pkg/startup_item/
+	cp -pR startup_item/tun pkg/startup_item/
 
 pkg:	all
 	sed -e 's/@@TUNTAP_VERSION@@/$(TUNTAP_VERSION)/' pkg/tap_kext.desc/Info.plist.in > pkg/tap_kext.desc/Info.plist
@@ -17,10 +17,8 @@ pkg:	all
 	tools/makepkg.sh pkg/tap_kext.pkg pkg/tap_kext pkg/tap_kext.res pkg/tap_kext.desc
 	tools/makepkg.sh pkg/tun_kext.pkg pkg/tun_kext pkg/tun_kext.res pkg/tun_kext.desc
 	tools/makepkg.sh pkg/startup_item.pkg pkg/startup_item pkg/startup_item.res pkg/startup_item.desc
-	@# make a copy of the tuntap metapackage not containing the CVS data
 	-rm -rf pkg/tuntap_installer.mpkg
-	-mkdir pkg/tuntap_installer.mpkg
-	tar cv -C pkg/tuntap.mpkg . --exclude '*CVS*' | tar xv -C pkg/tuntap_installer.mpkg
+	cp -R pkg/tuntap.mpkg pkg/tuntap_installer.mpkg
 	tar czf tuntap_leopard_$(TUNTAP_VERSION).tar.gz README.installer README -C pkg tap_kext.pkg tun_kext.pkg startup_item.pkg tuntap_installer.mpkg
 	rm -rf pkg/tuntap_installer.mpkg
 
@@ -29,12 +27,16 @@ pkg:	all
 install_kext: tap.kext tun.kext
 	mkdir -p ${BASE}/Library/Extensions
 	cp -pR tap.kext ${BASE}/Library/Extensions/
+	chown -R root:wheel ${BASE}/Library/Extensions/tap.kext
 	cp -pR tun.kext ${BASE}/Library/Extensions/ 
+	chown -R root:wheel ${BASE}/Library/Extensions/tun.kext
 
 install_scripts:
 	mkdir -p ${BASE}/Library/StartupItems
 	cp -pR startup_item/tap ${BASE}/Library/StartupItems/
+	chown -R root:wheel ${BASE}/Library/StartupItems/tap
 	cp -pR startup_item/tun ${BASE}/Library/StartupItems/ 
+	chown -R root:wheel ${BASE}/Library/StartupItems/tun
 
 install: install_kext install_scripts
 
@@ -48,10 +50,10 @@ clean:
 	-rm -rf pkg/tap_kext.desc/Info.plist
 	-rm -rf pkg/tun_kext.desc/Info.plist
 	-rm -rf pkg/startup_item.desc/Info.plist
-	-rm -rf pkg/tap_kext/Library/Extensions/tap.kext
-	-rm -rf pkg/tun_kext/Library/Extensions/tun.kext
-	-rm -rf pkg/startup_item/Library/StartupItems/tap
-	-rm -rf pkg/startup_item/Library/StartupItems/tun
+	-rm -rf pkg/tap_kext/tap.kext
+	-rm -rf pkg/tun_kext/tun.kext
+	-rm -rf pkg/startup_item/tap
+	-rm -rf pkg/startup_item/tun
 	-rm -rf pkg/tap_kext.pkg
 	-rm -rf pkg/tun_kext.pkg
 	-rm -rf pkg/startup_item.pkg
