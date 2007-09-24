@@ -1,6 +1,12 @@
 
 September 20, 2007:
- o Initial Leopard port
+ o Initial Leopard port, it's basically the latest Tiger version with some
+   Leopard-related fixes and s/Tiger/Leopard/g
+ o I have switched to a proper version management system (git) and could
+   remove some of the CVS hacks subsequently.
+ o The installation packages have been reworked a bit, they now install into
+   /System/Extensions and /System/StartupItems directly by using
+   DestinationPaths.
 
 May 13, 2006:
  o This version is not stable, it may crash, sorry.
