@@ -1,4 +1,9 @@
 
+Oktober 11, 2007:
+ o Fix the permissions of the postflight scripts. Installer packages should work   again.
+ o Drop the kmod and kmodc++ in the linker command, they seem to be unneeded
+   with Leopard.
+
 September 20, 2007:
  o Initial Leopard port, it's basically the latest Tiger version with some
    Leopard-related fixes and s/Tiger/Leopard/g
