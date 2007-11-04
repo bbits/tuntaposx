@@ -10,8 +10,7 @@ most cases.
 The driver ships as two kernel extensions, one for tap and one for tun. They are
 located in /Library/Extensions and can also be loaded and unloaded by hand. If
 you install the startup item, the system will load them automatically at
-startup (tun and tap startup items get installed in
-/System/Library/StartupItems).
+startup (tun and tap startup items get installed in /Library/StartupItems).
 
 Operation & Programming notes
 =============================
