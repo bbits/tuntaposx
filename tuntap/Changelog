@@ -1,6 +1,13 @@
 
+November 14, 2007:
+ o I have done a complete rework of the installer package generation. The
+   package is now edited in PackageMaker. The distribution package can still
+   be built from the commandline though.
+ o Fix incorrect permission & ownership of the installed files.
+
 Oktober 11, 2007:
- o Fix the permissions of the postflight scripts. Installer packages should work   again.
+ o Fix the permissions of the postflight scripts. Installer packages should work
+   again.
  o Drop the kmod and kmodc++ in the linker command, they seem to be unneeded
    with Leopard.
 
