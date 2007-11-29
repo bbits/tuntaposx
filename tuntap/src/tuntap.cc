@@ -810,7 +810,7 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 			 * show up in the network configuration panel...
 			 */
 			struct ifaddr *ifa = (struct ifaddr *) arg;
-			if (ifa->ifa_netmask != NULL && ifa->ifa_addr != NULL) {
+			if (ifa != NULL && ifa->ifa_netmask != NULL && ifa->ifa_addr != NULL) {
 
 				dprintf("tuntap: if_ioctl: addr af %d netmask af %d\n",
 						ifa->ifa_netmask->sa_family,
@@ -831,10 +831,15 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 		case SIOCGIFSTATUS:
 			{
 				struct ifstat *stat = (struct ifstat *) arg;
-				int len = strlen(stat->ascii);
-				char *p = stat->ascii + len;
+				int len;
+				char *p;
+
+				if (stat == NULL)
+					return EINVAL;
 
 				/* print status */
+				len = strlen(stat->ascii);
+				p = stat->ascii + len;
 				if (open) {
 					snprintf(p, IFSTATMAX - len, "\topen (pid %u)\n", pid);
 				} else {
@@ -847,6 +852,10 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 		case SIOCSIFMTU:
 			{
 				struct ifreq *ifr = (struct ifreq *) arg;
+
+				if (ifr == NULL)
+					return EINVAL;
+
 				ifnet_set_mtu(ifp, ifr->ifr_mtu);
 
 				return 0;

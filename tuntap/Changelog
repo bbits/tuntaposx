@@ -1,4 +1,7 @@
 
+ o Check if_ioctl arguments more defensively after a report of a panic after
+   receiving a NULL arg.
+
 November 14, 2007:
  o I have done a complete rework of the installer package generation. The
    package is now edited in PackageMaker. The distribution package can still
