@@ -4,8 +4,8 @@
 rm -r /System/Library/StartupItems/tap
 
 # Fix ownership and permissions. PackageMaker gets this wrong *sigh*
-chown -R root:wheel /System/Library/StartupItems/tap
-chmod -R u=rwX,g=rX,o=rX /System/Library/StartupItems/tap
+chown -R root:wheel /Library/StartupItems/tap
+chmod -R u=rwX,g=rX,o=rX /Library/StartupItems/tap
 
 # exit successfully
 exit 0
