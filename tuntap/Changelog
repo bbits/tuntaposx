@@ -1,4 +1,5 @@
 
+December 21, 2007:
  o Fix paths in the startup item postflight scripts
  o Check if_ioctl arguments more defensively after a report of a panic after
    receiving a NULL arg.
