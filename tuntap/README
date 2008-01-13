@@ -39,10 +39,12 @@ to switch it off.
 Prepending mode is off by default. Currently it is not recommended to switch the
 mode while packets are in flight on the device.
 
-The drivers will initially provide one idle device. If it is opened (by opening
-the corresponding character device) the driver will create a new device unless
-the maximum number of interfaces is reached. Accordingly the drivers keep one
-idle interface when closing character devices.
+The character devices are always visible in the filesystem as /dev/tunX and
+/dev/tapX. The number of available character devices is a compile time constant
+and is currently fixed to 16. Each character devices is associated with a
+network interface of the same name. The network interfaces are only created when
+the corresponding character device is opened by a program and will be removed
+when the character device is closed.
 
 The character devices currently provide a pretty minimal interface. Whole
 packets are read and written using a singe read/write call. File descriptors
