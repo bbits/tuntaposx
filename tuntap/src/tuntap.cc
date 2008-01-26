@@ -780,7 +780,8 @@ tuntap_interface::if_output(mbuf_t m)
 		auto_lock l(&lock);
 
 		if (!send_queue.enqueue(pkt)) {
-			mbuf_freem_list(pkt);
+			mbuf_freem(pkt);
+			mbuf_freem_list(m);
 			return ENOBUFS;
 		}
 	}
