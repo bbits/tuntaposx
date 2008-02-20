@@ -82,7 +82,7 @@ tap_interface::shutdown()
 }
 
 int
-tap_interface::initialize_netif()
+tap_interface::initialize_interface()
 {
 	struct sockaddr_dl lladdr;
 	lladdr.sdl_len = sizeof(lladdr);
@@ -131,7 +131,7 @@ tap_interface::initialize_netif()
 }
 
 void
-tap_interface::shutdown_netif()
+tap_interface::shutdown_interface()
 {
 	dprintf("tap: shutting down network interface of device %s%d\n", TAP_FAMILY_NAME, unit);
 
@@ -145,6 +145,7 @@ tap_interface::shutdown_netif()
 		}
 	}
 
+	cleanup_interface();
 	unregister_interface();
 }
 

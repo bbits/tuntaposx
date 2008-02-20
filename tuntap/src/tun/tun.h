@@ -94,9 +94,9 @@ class tun_interface : public tuntap_interface {
 		/* called when the character device is opened in order to intialize the network
 		 * interface.
 		 */
-		virtual int initialize_netif();
+		virtual int initialize_interface();
 		/* called when the character device is closed to shutdown the network interface */
-		virtual void shutdown_netif();
+		virtual void shutdown_interface();
 
 		/* override interface routines */
 		virtual errno_t if_demux(mbuf_t m, char *header, protocol_family_t *proto);

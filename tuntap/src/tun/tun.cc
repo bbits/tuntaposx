@@ -76,7 +76,7 @@ tun_interface::shutdown()
 }
 
 int
-tun_interface::initialize_netif()
+tun_interface::initialize_interface()
 {
 	prepend_af = false;
 
@@ -101,7 +101,7 @@ tun_interface::initialize_netif()
 }
 
 void
-tun_interface::shutdown_netif()
+tun_interface::shutdown_interface()
 {
 	dprintf("tun: shutting down network interface of %s%d\n", family_name, unit);
 
@@ -115,6 +115,7 @@ tun_interface::shutdown_netif()
 		}
 	}
 
+	cleanup_interface();
 	unregister_interface();
 }
 

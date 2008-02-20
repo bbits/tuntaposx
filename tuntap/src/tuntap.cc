@@ -43,6 +43,7 @@ extern "C" {
 #include <sys/filio.h>
 #include <sys/sockio.h>
 #include <sys/fcntl.h>
+#include <sys/kpi_socket.h>
 
 #include <vm/vm_kern.h>
 
@@ -370,9 +371,6 @@ tuntap_interface::unregister_interface()
 	dprintf("unregistering network interface\n");
 
 	if (ifp != NULL) {
-		/* mark the interface down */
-		ifnet_set_flags(ifp, 0, IFF_UP | IFF_RUNNING);
-
 		/* grab the shutdown lock */
 		shutdown_lock.lock();
 
@@ -450,6 +448,61 @@ tuntap_interface::unregister_interface()
 	dprintf("network interface unregistered\n");
 }
 
+void
+tuntap_interface::cleanup_interface()
+{
+	errno_t err;
+	ifaddr_t *addrs;
+	ifaddr_t *a;
+	struct ifreq ifr;
+	socket_t sock;
+
+	/* mark the interface down */
+	ifnet_set_flags(ifp, 0, IFF_UP | IFF_RUNNING);
+
+	/* Unregister all interface addresses. This works around a deficiency in the Darwin kernel.
+	 * If we don't remove all IP addresses that are attached to the interface it can happen that
+	 * the IP code fails to clean them up itself. When the interface is recycled, the IP code
+	 * might then think some addresses are still attached to the interface...
+	 */
+
+	err = ifnet_get_address_list(ifp, &addrs);
+	if (!err) {
+
+		/* Execute a SIOCDIFADDR ioctl for each address. For technical reasons, we can only
+		 * do that with a socket of the appropriate family. So try to create a dummy socket.
+		 * I know this is a little expensive, but better than crashing...
+		 *
+		 * This really sucks.
+		 */
+		for (a = addrs; *a != NULL; a++) {
+			/* initialize the request parameters */
+			snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s%d",
+				ifnet_name(ifp), ifnet_unit(ifp));
+			ifaddr_address(*a, &(ifr.ifr_addr), sizeof(ifr.ifr_addr));
+
+			dprintf("trying to delete address of family %d\n", ifr.ifr_addr.sa_family);
+
+			/* create the dummy socket. */
+			err = sock_socket(ifr.ifr_addr.sa_family, SOCK_RAW, 0, NULL, NULL, &sock);
+			if (err)
+				/* failed to create the socket? Ignore this address... */
+				continue;
+
+			/* issue the ioctl */
+			err = sock_ioctl(sock, SIOCDIFADDR, &ifr);
+
+			dprintf("ifnet_ioctl returned %d\n", err);
+
+			/* get rid of the socket */
+			sock_close(sock);
+		}
+
+		/* release the address list */
+		ifnet_free_address_list(addrs);
+	}
+}
+
 bool
 tuntap_interface::idle()
 {
@@ -481,7 +534,7 @@ tuntap_interface::cdev_open(int flags, int devtype, proc_t p)
 		return EBUSY;
 
 	/* bring the network interface up */
-	int error = initialize_netif();
+	int error = initialize_interface();
 	if (error)
 		return error;
 
@@ -501,8 +554,8 @@ tuntap_interface::cdev_close(int flags, int devtype, proc_t p)
 	if (open) {
 		open = false;
 
-		/* shutdown the network interface */
-		shutdown_netif();
+		/* shut down the network interface */
+		shutdown_interface();
 
 		/* clear the queue */
 		send_queue.clear();

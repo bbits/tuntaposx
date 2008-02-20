@@ -234,13 +234,14 @@ class tuntap_interface {
 		virtual bool register_interface(const struct sockaddr_dl *lladdr,
 				void *bcaddr, u_int32_t bcaddrlen);
 		virtual void unregister_interface();
+		virtual void cleanup_interface();
 
 		/* called when the character device is opened in order to intialize the network
 		 * interface.
 		 */
-		virtual int initialize_netif() = 0;
+		virtual int initialize_interface() = 0;
 		/* called when the character device is closed to shutdown the network interface */
-		virtual void shutdown_netif() = 0;
+		virtual void shutdown_interface() = 0;
 
 		/* check wether the interface is idle (so it can be brought down) */
 		virtual bool idle();

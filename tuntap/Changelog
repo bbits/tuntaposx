@@ -1,4 +1,9 @@
 
+ o Work around an issue in the Darwin kernel. When unregistering an interface,
+   addresses are not properly removed from the interface. This leads to
+   crashes and other problems when reusing the interface. Introduce an ugly
+   hack that tries to remove all interface addresses when shutting the
+   interface down.
  o Fix a small mbuf leak that could occur when the output queue was full.
   Thanks to Olge Dolgov for reporting this.
 
