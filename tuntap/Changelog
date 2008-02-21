@@ -1,4 +1,5 @@
 
+January 21, 2008:
  o Work around an issue in the Darwin kernel. When unregistering an interface,
    addresses are not properly removed from the interface. This leads to
    crashes and other problems when reusing the interface. Introduce an ugly

@@ -4,7 +4,7 @@
  * struct ifaddr definition borrowed from the kernel code.
  */
 /*
- * Copyright (c) 2006, 2007 Mattias Nissler <mattias.nissler@gmx.de>
+ * Copyright (c) 2006, 2007, 2008 Mattias Nissler <mattias.nissler@gmx.de>
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted
  * provided that the following conditions are met:
