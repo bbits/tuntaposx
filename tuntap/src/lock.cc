@@ -32,6 +32,7 @@
 extern "C" {
 
 #include <sys/syslog.h>
+#include <sys/proc.h>
 
 }
 
@@ -109,6 +110,20 @@ tt_mutex::unlock()
 {
 	if (lck != NULL)
 		lck_mtx_unlock(lck);
+}
+
+void
+tt_mutex::sleep(void *cond, struct timespec* to)
+{
+	if (lck != NULL)
+		::msleep(cond, lck, 0, "tuntap tt_mutex", to);
+}
+
+void
+tt_mutex::wakeup(void *cond)
+{
+	if (lck != NULL)
+		::wakeup(cond);
 }
 
 /* tt_rwlock */

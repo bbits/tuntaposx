@@ -70,6 +70,11 @@ class tt_mutex : public tt_lock {
 
 		virtual void lock();
 		virtual void unlock();
+
+		/* The mutex can also be used as monitor. */
+		void sleep(void* cond, struct timespec* to);
+		void wakeup(void* cond);
+
 };
 
 /* read-write lock. Using the object directly you get read locking.  For write locking, pass the

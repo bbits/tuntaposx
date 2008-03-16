@@ -371,8 +371,7 @@ tuntap_interface::unregister_interface()
 	dprintf("unregistering network interface\n");
 
 	if (ifp != NULL) {
-		/* grab the shutdown lock */
-		shutdown_lock.lock();
+		interface_detached = false;
 
 		/* detach interface */
 		err = ifnet_detach(ifp);
@@ -382,15 +381,18 @@ tuntap_interface::unregister_interface()
 
 		dprintf("interface detaching\n");
 
-		/* we will hang here until if_detached releases the lock */
-		shutdown_lock.lock();
+		/* Wait until the interface has completely been detached. */
+		detach_lock.lock();
+		while (!interface_detached)
+			detach_lock.sleep(&interface_detached, NULL);
+		detach_lock.unlock();
+
+		dprintf("interface detached\n");
 
 		/* release the interface */
 		ifnet_release(ifp);
 
 		ifp = NULL;
-
-		shutdown_lock.unlock();
 
 #if 0
 		/* Here goes another hack that we need to prevent darwin from crashing.
@@ -599,8 +601,7 @@ tuntap_interface::cdev_read(uio_t uio, int ioflag)
 				dprintf("tuntap: waiting\n");
 				/* release the lock while waiting */
 				l.unlock();
-				error = msleep((caddr_t) this, (lck_mtx_t *) NULL, PZERO | PCATCH,
-						"tuntap", (struct timespec *) NULL);
+				error = msleep(this, NULL, PZERO | PCATCH, "tuntap", NULL);
 
 				l.lock();
 
@@ -947,9 +948,14 @@ tuntap_interface::if_check_multi(const struct sockaddr *maddr)
 void
 tuntap_interface::if_detached()
 {
-	dprintf("tuntap: if_detach\n");
+	dprintf("tuntap: if_detached\n");
 
-	/* unlock the lock. This will let unregister_interface() continue */
-	shutdown_lock.unlock();
+	/* wake unregister_interface() */
+	detach_lock.lock();
+	interface_detached = true;
+	detach_lock.wakeup(&interface_detached);
+	detach_lock.unlock();
+
+	dprintf("if_detached done\n");
 }
 

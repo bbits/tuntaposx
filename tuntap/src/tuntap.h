@@ -198,14 +198,16 @@ class tuntap_interface {
 		/* synchronization */
 		tt_mutex lock;
 		tt_mutex bpf_lock;
-		tt_mutex shutdown_lock;
+		tt_mutex detach_lock;
 
 		/* the interface structure registered */
 		ifnet_t ifp;
-		/* wether the device has been opened */
+		/* whether the device has been opened */
 		bool open;
-		/* wether we are doing blocking i/o */
+		/* whether we are doing blocking i/o */
 		bool block_io;
+		/* whether the interface has properly been detached */
+		bool interface_detached;
 		/* handle to the devfs node for the character device */
 		void *dev_handle;
 		/* the pid of the process that opened the cdev, if any */

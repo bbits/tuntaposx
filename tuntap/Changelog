@@ -1,4 +1,8 @@
 
+ o Use a proper wait condition for synchronization when detaching the network
+   interface. The old code would crash if the if_detached() handler was called
+   from a different thread than unregister_interface().
+
 January 21, 2008:
  o Work around an issue in the Darwin kernel. When unregistering an interface,
    addresses are not properly removed from the interface. This leads to
