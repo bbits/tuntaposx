@@ -10,7 +10,7 @@ January 21, 2008:
    hack that tries to remove all interface addresses when shutting the
    interface down.
  o Fix a small mbuf leak that could occur when the output queue was full.
-  Thanks to Olge Dolgov for reporting this.
+   Thanks to Oleg Dolgov for reporting this.
 
 December 21, 2007:
  o Fix paths in the startup item postflight scripts
