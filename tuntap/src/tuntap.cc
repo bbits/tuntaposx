@@ -841,9 +841,14 @@ tuntap_interface::if_output(mbuf_t m)
 		}
 	}
 
-	/* wakeup the cdev thread and notify selects */
-	wakeup(this);
-	selwakeup(&rsel);
+	/* protect the wakeup calls with the lock, not sure they are safe. */
+	{
+		auto_lock l(&lock);
+
+		/* wakeup the cdev thread and notify selects */
+		wakeup(this);
+		selwakeup(&rsel);
+	}
 
 	return 0;
 }
