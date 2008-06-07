@@ -1,4 +1,8 @@
 
+June 7, 2008:
+ o Protect the selwakeup() call by the lock. This fixes incorrect select()
+   behaviour, thanks to Roland Wendelin for reporting this.
+ o Fix tuntap_mbuf_queue::size initialization
  o Use a proper wait condition for synchronization when detaching the network
    interface. The old code would crash if the if_detached() handler was called
    from a different thread than unregister_interface().
