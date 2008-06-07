@@ -201,6 +201,7 @@ tuntap_if_noop_del_proto(ifnet_t, protocol_family_t)
 tuntap_mbuf_queue::tuntap_mbuf_queue()
 {
 	head = tail = NULL;
+	size = 0;
 }
 
 tuntap_mbuf_queue::~tuntap_mbuf_queue()
