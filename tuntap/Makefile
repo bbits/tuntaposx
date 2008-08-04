@@ -8,9 +8,9 @@ all: tap.kext tun.kext
 
 pkg: all
 	/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker \
-		-d pkg/tuntap.pmdoc -o tuntap_leopard_$(TUNTAP_VERSION).pkg -v
-	tar czf tuntap_leopard_$(TUNTAP_VERSION).tar.gz \
-		README.installer README tuntap_leopard_$(TUNTAP_VERSION).pkg 
+		-d pkg/tuntap.pmdoc -o tuntap_$(TUNTAP_VERSION).pkg -v
+	tar czf tuntap_$(TUNTAP_VERSION).tar.gz \
+		README.installer README tuntap_$(TUNTAP_VERSION).pkg 
 
 # Install targets
 # They are provided for the gentoo ebuild, but should work just fine for other people as well.
@@ -31,21 +31,21 @@ install_scripts:
 install: install_kext install_scripts
 
 tarball: clean
-	touch tuntap_leopard_$(TUNTAP_VERSION)_src.tar.gz
-	tar czf tuntap_leopard_$(TUNTAP_VERSION)_src.tar.gz \
+	touch tuntap_$(TUNTAP_VERSION)_src.tar.gz
+	tar czf tuntap_$(TUNTAP_VERSION)_src.tar.gz \
 		-C .. \
-		--exclude "tuntap/tuntap_leopard_$(TUNTAP_VERSION)_src.tar.gz" \
-		--exclude "tuntap/tuntap_leopard_$(TUNTAP_VERSION).tar.gz" \
-		--exclude "tuntap/tuntap_leopard_$(TUNTAP_VERSION).pkg" \
+		--exclude "tuntap/tuntap_$(TUNTAP_VERSION)_src.tar.gz" \
+		--exclude "tuntap/tuntap_$(TUNTAP_VERSION).tar.gz" \
+		--exclude "tuntap/tuntap_$(TUNTAP_VERSION).pkg" \
 		--exclude "*/.*" \
 		tuntap
 
 clean:
 	cd src/tap && make -f Makefile clean
 	cd src/tun && make -f Makefile clean
-	-rm -f tuntap_leopard_$(TUNTAP_VERSION).pkg
-	-rm -f tuntap_leopard_$(TUNTAP_VERSION).tar.gz
-	-rm -f tuntap_leopard_$(TUNTAP_VERSION)_src.tar.gz
+	-rm -rf tuntap_$(TUNTAP_VERSION).pkg
+	-rm -f tuntap_$(TUNTAP_VERSION).tar.gz
+	-rm -f tuntap_$(TUNTAP_VERSION)_src.tar.gz
 
 tap.kext:
 	cd src/tap && make TUNTAP_VERSION=$(TUNTAP_VERSION) -f Makefile all
