@@ -1,4 +1,5 @@
 
+July 4, 2008:
  o Adapt the former Leopard package to also be installable on Tiger systems.
    This obsoletes the Tiger version, both Leopard and Tiger are now supported
    by a single package.

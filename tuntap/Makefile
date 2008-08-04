@@ -1,5 +1,5 @@
 # Lets have a version, at last!
-TUNTAP_VERSION = 20080607
+TUNTAP_VERSION = 20080804
 
 # BASE install directory
 BASE=
