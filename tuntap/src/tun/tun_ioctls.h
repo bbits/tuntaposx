@@ -2,7 +2,7 @@
  * ip tunnel device for MacOSX.
  */
 /*
- * Copyright (c) 2004, 2005, 2006, 2007, 2008 Mattias Nissler <mattias.nissler@gmx.de>
+ * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 Mattias Nissler <mattias.nissler@gmx.de>
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted
  * provided that the following conditions are met:
