@@ -30,7 +30,7 @@
 
 #include "tuntap.h"
 
-#define TAP_FAMILY_NAME			"tap"
+#define TAP_FAMILY_NAME			((char *) "tap")
 #define TAP_IF_COUNT			16	/* max number of tap interfaces */
 #define TAP_MTU				1500
 #define TAP_LLADDR			tap_lladdr

@@ -54,7 +54,7 @@ extern "C" {
 extern "C" {
 
 errno_t tuntap_if_output(ifnet_t ifp, mbuf_t m);
-errno_t tuntap_if_ioctl(ifnet_t ifp, u_int32_t cmd, void *arg);
+errno_t tuntap_if_ioctl(ifnet_t ifp, long unsigned int cmd, void *arg);
 errno_t tuntap_if_set_bpf_tap(ifnet_t ifp, bpf_tap_mode mode, int (*cb)(ifnet_t, mbuf_t));
 errno_t tuntap_if_demux(ifnet_t ifp, mbuf_t m, char *header, protocol_family_t *proto);
 errno_t tuntap_if_framer(ifnet_t ifp, mbuf_t *m, const struct sockaddr *dest,
@@ -264,7 +264,7 @@ class tuntap_interface {
 
 		/* interface functions. friends and implementation methods */
 		friend errno_t tuntap_if_output(ifnet_t ifp, mbuf_t m);
-		friend errno_t tuntap_if_ioctl(ifnet_t ifp, u_int32_t cmd, void *arg);
+		friend errno_t tuntap_if_ioctl(ifnet_t ifp, long unsigned int cmd, void *arg);
 		friend errno_t tuntap_if_set_bpf_tap(ifnet_t ifp, bpf_tap_mode mode,
 				int (*cb)(ifnet_t, mbuf_t));
 		friend errno_t tuntap_if_demux(ifnet_t ifp, mbuf_t m, char *header,

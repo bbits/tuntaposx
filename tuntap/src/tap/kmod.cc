@@ -50,7 +50,7 @@ static kern_return_t tap_module_start(struct kmod_info *ki, void *data)
 	mgr = new tap_manager();
 
 	if (mgr != NULL) {
-		if (mgr->initialize(TAP_IF_COUNT, TAP_FAMILY_NAME))
+		if (mgr->initialize(TAP_IF_COUNT, (char *) TAP_FAMILY_NAME))
 			return KMOD_RETURN_SUCCESS;
 
 		delete mgr;

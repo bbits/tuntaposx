@@ -75,7 +75,7 @@ tuntap_if_output(ifnet_t ifp, mbuf_t m)
 }
 
 errno_t
-tuntap_if_ioctl(ifnet_t ifp, u_int32_t cmd, void *arg)
+tuntap_if_ioctl(ifnet_t ifp, long unsigned int cmd, void *arg)
 {
 	if (ifp != NULL) {
 		tuntap_interface *ttif = (tuntap_interface *) ifnet_softc(ifp);
@@ -860,32 +860,35 @@ tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 
 	switch (cmd) {
 		case SIOCSIFADDR:
-			dprintf("tuntap: if_ioctl: SIOCSIFADDR\n");
+			{
+				dprintf("tuntap: if_ioctl: SIOCSIFADDR\n");
 
-			/* Unfortunately, ifconfig sets the address family field of an INET netmask
-			 * to zero. However, this makes mDNSresponder ignore the interface. Fix that
-			 * here. This one is of the category "ugly workaround". Dumb Darwin...
-			 *
-			 * Btw. If you configure other network interfaces using ifconfig, you run
-			 * into the same problem. I still don't know how to make the tap devices
-			 * show up in the network configuration panel...
-			 */
-			struct ifaddr *ifa = (struct ifaddr *) arg;
-			if (ifa != NULL && ifa->ifa_netmask != NULL && ifa->ifa_addr != NULL) {
+				/* Unfortunately, ifconfig sets the address family field of an INET
+				 * netmask to zero. However, this makes mDNSresponder ignore the
+				 * interface. Fix that here. This one is of the category "ugly
+				 * workaround". Dumb Darwin...
+				 *
+				 * Btw. If you configure other network interfaces using ifconfig,
+				 * you run into the same problem. I still don't know how to make the
+				 * tap devices show up in the network configuration panel...
+				 */
+				struct ifaddr *ifa = (struct ifaddr *) arg;
+				if (ifa != NULL && ifa->ifa_netmask != NULL && ifa->ifa_addr != NULL) {
 
-				dprintf("tuntap: if_ioctl: addr af %d netmask af %d\n",
-						ifa->ifa_netmask->sa_family,
-						ifa->ifa_addr->sa_family);
+					dprintf("tuntap: if_ioctl: addr af %d netmask af %d\n",
+							ifa->ifa_netmask->sa_family,
+							ifa->ifa_addr->sa_family);
 
-				if (ifa->ifa_netmask->sa_family != ifa->ifa_addr->sa_family)
-				{
-					/* Fix the address family field of the netmask */
-					dprintf("tuntap: if_ioctl: fixing netmask af.\n");
-					ifa->ifa_netmask->sa_family = ifa->ifa_addr->sa_family;
+					if (ifa->ifa_netmask->sa_family != ifa->ifa_addr->sa_family)
+					{
+						/* Fix the address family field of the netmask */
+						dprintf("tuntap: if_ioctl: fixing netmask af.\n");
+						ifa->ifa_netmask->sa_family = ifa->ifa_addr->sa_family;
+					}
 				}
+				return 0;
 			}
-			return 0;
-					
+
 		case SIOCSIFFLAGS:
 			return 0;
 

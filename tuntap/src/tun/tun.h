@@ -30,7 +30,7 @@
 
 #include "tuntap.h"
 
-#define TUN_FAMILY_NAME			"tun"
+#define TUN_FAMILY_NAME			((char *) "tun")
 #define TUN_IF_COUNT			16	/* max number of tun interfaces */
 #define TUN_MTU				1500
 
