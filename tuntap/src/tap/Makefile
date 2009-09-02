@@ -22,7 +22,8 @@ BUNDLE_VERSION = $(TAP_KEXT_VERSION)
 INCLUDE = -I.. \
 	-I/System/Library/Frameworks/Kernel.framework/Headers \
 	-I/System/Library/Frameworks/Kernel.framework/Headers/bsd
-CFLAGS = -static -nostdinc -Wall -msoft-float -mlong-branch -force_cpusubtype_ALL -fno-builtin \
+CFLAGS = -static -nostdinc -Wall -msoft-float -mlong-branch -force_cpusubtype_ALL \
+	-fno-builtin -fno-stack-protector \
 	-arch ppc -arch i386 -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.4u.sdk/ \
 	-DKERNEL -D__APPLE__ -DKERNEL_PRIVATE -DTUNTAP_VERSION=\"$(TUNTAP_VERSION)\" \
 	-DTAP_KEXT_VERSION=\"$(TAP_KEXT_VERSION)\"
