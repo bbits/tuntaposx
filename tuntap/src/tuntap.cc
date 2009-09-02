@@ -385,7 +385,7 @@ tuntap_interface::unregister_interface()
 		/* Wait until the interface has completely been detached. */
 		detach_lock.lock();
 		while (!interface_detached)
-			detach_lock.sleep(&interface_detached, NULL);
+			detach_lock.sleep(&interface_detached);
 		detach_lock.unlock();
 
 		dprintf("interface detached\n");

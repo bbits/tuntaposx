@@ -62,7 +62,7 @@ class tt_mutex : public tt_lock {
 
 	private:
 		/* underlying darwin lock */
-		lck_mtx_t *lck;
+		lck_rw_t *lck;
 
 	public:
 		tt_mutex();
@@ -72,40 +72,9 @@ class tt_mutex : public tt_lock {
 		virtual void unlock();
 
 		/* The mutex can also be used as monitor. */
-		void sleep(void* cond, struct timespec* to);
+		void sleep(void* cond);
+		void sleep(void* cond, uint64_t);
 		void wakeup(void* cond);
-
-};
-
-/* read-write lock. Using the object directly you get read locking.  For write locking, pass the
- * result of write_lock() to auto_lock. */
-class tt_rwlock : public tt_lock {
-	
-	private:
-		/* underlying darwin lock */
-		lck_rw_t *lck;
-
-		class wl : public tt_lock {
-			protected:
-				lck_rw_t *lck;
-				friend class tt_rwlock;
-
-			public:
-				virtual void lock();
-				virtual void unlock();
-
-		} w_lock;
-
-	public:
-		/* intialize a new lock. */
-		tt_rwlock();
-		virtual ~tt_rwlock();
-
-		/* return a pointer to the write locking object */
-		tt_lock *write_lock();
-
-		virtual void lock();
-		virtual void unlock();
 
 };
 

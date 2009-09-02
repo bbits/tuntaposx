@@ -82,7 +82,7 @@ tt_mutex::tt_mutex()
 		return;
 
 	/* allocate the lock */
-	lck = lck_mtx_alloc_init(tt_lck_grp, NULL);
+	lck = lck_rw_alloc_init(tt_lck_grp, NULL);
 
 	if (lck == NULL)
 		log(LOG_ERR, "tuntap: could not allocate mutex\n");
@@ -95,28 +95,35 @@ tt_mutex::~tt_mutex()
 		return;
 
 	/* free the lock */
-	lck_mtx_free(lck, tt_lck_grp);
+	lck_rw_free(lck, tt_lck_grp);
 }
 
 void
 tt_mutex::lock()
 {
 	if (lck != NULL)
-		lck_mtx_lock(lck);
+		lck_rw_lock_exclusive(lck);
 }
 
 void
 tt_mutex::unlock()
 {
 	if (lck != NULL)
-		lck_mtx_unlock(lck);
+		lck_rw_unlock_exclusive(lck);
 }
 
 void
-tt_mutex::sleep(void *cond, struct timespec* to)
+tt_mutex::sleep(void *cond)
 {
 	if (lck != NULL)
-		::msleep(cond, lck, 0, "tuntap tt_mutex", to);
+		lck_rw_sleep(lck, LCK_SLEEP_DEFAULT, cond, THREAD_INTERRUPTIBLE);
+}
+
+void
+tt_mutex::sleep(void *cond, uint64_t timeout)
+{
+	if (lck != NULL)
+		lck_rw_sleep_deadline(lck, LCK_SLEEP_DEFAULT, cond, THREAD_INTERRUPTIBLE, timeout);
 }
 
 void
@@ -124,67 +131,6 @@ tt_mutex::wakeup(void *cond)
 {
 	if (lck != NULL)
 		::wakeup(cond);
-}
-
-/* tt_rwlock */
-tt_rwlock::tt_rwlock()
-{
-	/* fail if locking group not initialized */
-	if (tt_lck_grp == NULL)
-		return;
-
-	/* allocate the lock */
-	lck = lck_rw_alloc_init(tt_lck_grp, NULL);
-
-	if (lck == NULL)
-		log(LOG_ERR, "tuntap: could not allocate rwlock\n");
-
-	/* setup w_lock's pointer */
-	w_lock.lck = lck;
-}
-
-tt_rwlock::~tt_rwlock()
-{
-	/* if the lock doesn't exist, this will be a no-op */
-	if (lck == NULL)
-		return;
-
-	/* free the lock */
-	lck_rw_free(lck, tt_lck_grp);
-}
-
-void
-tt_rwlock::lock()
-{
-	if (lck != NULL)
-		lck_rw_lock(lck, LCK_RW_TYPE_SHARED);
-}
-
-void
-tt_rwlock::unlock()
-{
-	if (lck != NULL)
-		lck_rw_unlock(lck, LCK_RW_TYPE_SHARED);
-}
-
-tt_lock *
-tt_rwlock::write_lock()
-{
-	return &w_lock;
-}
-
-void
-tt_rwlock::wl::lock()
-{
-	if (lck != NULL)
-		lck_rw_lock(lck, LCK_RW_TYPE_EXCLUSIVE);
-}
-
-void
-tt_rwlock::wl::unlock()
-{
-	if (lck != NULL)
-		lck_rw_unlock(lck, LCK_RW_TYPE_EXCLUSIVE);
 }
 
 /* tt_gate */
