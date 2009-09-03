@@ -82,7 +82,7 @@ static kern_return_t tun_module_stop(struct kmod_info *ki, void *data)
 	return KMOD_RETURN_SUCCESS;
 }
 
-KMOD_DECL(tun, TAP_KEXT_VERSION)
+KMOD_DECL(tun, TUN_KEXT_VERSION)
 
 }
 
