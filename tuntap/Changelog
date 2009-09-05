@@ -1,4 +1,12 @@
 
+September 5, 2009:
+ o Initial Snow Leopard port. Thanks to various people contributing patches in
+   the bugtracker. The new official version can only be compiled on Snow
+   Leopard but has been tested to work on all Tiger, Leopard and Snow Leopard
+ o Clean up unused locking code and switch to rwlocks even for simple mutexes,
+   which avoids a symbol incompatibility for Tiger and Leopard.
+ o Clean up compilation flags in the Makefiles.
+
 July 4, 2008:
  o Adapt the former Leopard package to also be installable on Tiger systems.
    This obsoletes the Tiger version, both Leopard and Tiger are now supported
