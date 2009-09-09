@@ -28,6 +28,7 @@
  */
 
 #include "tun.h"
+#include "mem.h"
 
 extern "C" {
 
@@ -42,6 +43,8 @@ static tun_manager *mgr;
  */
 static kern_return_t tun_module_start(struct kmod_info *ki, void *data)
 {
+	mem_initialize(TUN_FAMILY_NAME);
+
 	/* initialize locking */
 	if (!tt_lock::initialize())
 		return KMOD_RETURN_FAILURE;
@@ -78,6 +81,8 @@ static kern_return_t tun_module_stop(struct kmod_info *ki, void *data)
 
 	/* clean up locking */
 	tt_lock::shutdown();
+
+	mem_shutdown();
 
 	return KMOD_RETURN_SUCCESS;
 }

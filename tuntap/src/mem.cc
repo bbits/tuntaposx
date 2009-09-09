@@ -1,7 +1,7 @@
 /*
- * ethertap device for MacOSX.
+ * ip tunnel/ethertap device for MacOSX. Common functionality of tap_interface and tun_interface.
  *
- * Kext definition (it is a mach kmod really...)
+ * Memory management implementation.
  */
 /*
  * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 Mattias Nissler <mattias.nissler@gmx.de>
@@ -27,67 +27,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "tap.h"
 #include "mem.h"
 
 extern "C" {
 
-#include <sys/param.h>
+#include <libkern/OSMalloc.h>
 
-#include <mach/kmod.h>
-
-static tap_manager *mgr;
-
-/*
- * start function. called when the kext gets loaded.
- */
-static kern_return_t tap_module_start(struct kmod_info *ki, void *data)
-{
-	mem_initialize(TAP_FAMILY_NAME);
-
-	/* initialize locking */
-	if (!tt_lock::initialize())
-		return KMOD_RETURN_FAILURE;
-
-	/* create a tap manager that will handle the rest */
-	mgr = new tap_manager();
-
-	if (mgr != NULL) {
-		if (mgr->initialize(TAP_IF_COUNT, (char *) TAP_FAMILY_NAME))
-			return KMOD_RETURN_SUCCESS;
-
-		delete mgr;
-		mgr = NULL;
-		/* clean up locking */
-		tt_lock::shutdown();
-	}
-
-	return KMOD_RETURN_FAILURE;
 }
 
-/*
- * stop function. called when the kext should be unloaded. unloading can be prevented by
- * returning failure
- */
-static kern_return_t tap_module_stop(struct kmod_info *ki, void *data)
-{
-	if (mgr != NULL) {
-		if (!mgr->shutdown())
-			return KMOD_RETURN_FAILURE;
+#if 0
+#define dprintf(...)			log(LOG_INFO, __VA_ARGS__)
+#else
+#define dprintf(...)
+#endif
 
-		delete mgr;
-		mgr = NULL;
+static int inited = 0;
+static OSMallocTag tag;
+
+void
+mem_initialize(const char* name) {
+	
+	if (!inited) {
+		tag = OSMalloc_Tagalloc(name, OSMT_DEFAULT);
+		inited = 1;
 	}
+}
 
-	/* clean up locking */
-	tt_lock::shutdown();
+void
+mem_shutdown() {
+	
+	if (inited) {
+		OSMalloc_Tagfree(tag);
+		inited = 0;
+	}
+}
 
-	mem_shutdown();
+void *
+mem_alloc(uint32_t size) {
 
-	return KMOD_RETURN_SUCCESS;
-} 
+	return OSMalloc(size, tag);
+}
 
-KMOD_DECL(tap, TAP_KEXT_VERSION)
+void
+mem_free(void *addr, uint32_t size) {
 
+	OSFree(addr, size, tag);
 }
 

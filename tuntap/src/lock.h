@@ -37,7 +37,7 @@ extern "C" {
 
 }
 
-/* our own locking class. This is the interface used for mutexes and rw locks (see below) */
+/* our own locking class. declares the common interface of the locking primitives. */
 class tt_lock {
 	
 	protected:
@@ -55,6 +55,11 @@ class tt_lock {
 		/* locking */
 		virtual void lock() = 0;
 		virtual void unlock() = 0;
+
+		/* monitor primitives */
+		virtual void sleep(void* cond) = 0;
+		virtual void sleep(void* cond, uint64_t) = 0;
+		virtual void wakeup(void* cond) = 0;
 };
 
 /* simple mutex */
@@ -68,14 +73,13 @@ class tt_mutex : public tt_lock {
 		tt_mutex();
 		virtual ~tt_mutex();
 
-		virtual void lock();
-		virtual void unlock();
+		void lock();
+		void unlock();
 
-		/* The mutex can also be used as monitor. */
+		/* monitor primitives */
 		void sleep(void* cond);
 		void sleep(void* cond, uint64_t);
 		void wakeup(void* cond);
-
 };
 
 /* A very special locking class that we use to track threads that enter and leave the character
@@ -112,6 +116,11 @@ class tt_gate : public tt_lock {
 		void lock();
 		/* unlock the gate */
 		void unlock();
+
+		/* monitor primitives */
+		void sleep(void* cond);
+		void sleep(void* cond, uint64_t);
+		void wakeup(void* cond);
 };
 
 /* auto_lock and auto_rwlock serve as automatic lock managers: Create an object, passing the

@@ -6,7 +6,8 @@
 # (c) 2004, 2005, 2006, 2007, 2008 Mattias Nissler
 #
 
-OBJS = ../tuntap.o ../tuntap_mgr.o ../lock.o kmod.o tun_inet_proto.o tun_inet6_proto.o tun.o
+OBJS = ../tuntap.o ../tuntap_mgr.o ../lock.o ../mem.o \
+	kmod.o tun_inet_proto.o tun_inet6_proto.o tun.o
 KMOD_BIN = tun
 BUNDLE_DIR = ../..
 BUNDLE_NAME = tun.kext

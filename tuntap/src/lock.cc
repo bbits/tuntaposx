@@ -181,3 +181,21 @@ tt_gate::unlock()
 	slock.unlock();
 }
 
+void
+tt_gate::sleep(void* cond)
+{
+	slock.sleep(cond);
+}
+
+void
+tt_gate::sleep(void* cond, uint64_t timeout)
+{
+	slock.sleep(cond, timeout);
+}
+
+void
+tt_gate::wakeup(void* cond)
+{
+	slock.wakeup(cond);
+}
+

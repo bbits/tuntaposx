@@ -1,7 +1,7 @@
 /*
- * ethertap device for MacOSX.
+ * ip tunnel/ethertap device for MacOSX. Common functionality of tap_interface and tun_interface.
  *
- * Kext definition (it is a mach kmod really...)
+ * Memory management.
  */
 /*
  * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 Mattias Nissler <mattias.nissler@gmx.de>
@@ -27,67 +27,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "tap.h"
-#include "mem.h"
+#ifndef __MEM_H__
+#define __MEM_H__
 
 extern "C" {
 
-#include <sys/param.h>
-
-#include <mach/kmod.h>
-
-static tap_manager *mgr;
-
-/*
- * start function. called when the kext gets loaded.
- */
-static kern_return_t tap_module_start(struct kmod_info *ki, void *data)
-{
-	mem_initialize(TAP_FAMILY_NAME);
-
-	/* initialize locking */
-	if (!tt_lock::initialize())
-		return KMOD_RETURN_FAILURE;
-
-	/* create a tap manager that will handle the rest */
-	mgr = new tap_manager();
-
-	if (mgr != NULL) {
-		if (mgr->initialize(TAP_IF_COUNT, (char *) TAP_FAMILY_NAME))
-			return KMOD_RETURN_SUCCESS;
-
-		delete mgr;
-		mgr = NULL;
-		/* clean up locking */
-		tt_lock::shutdown();
-	}
-
-	return KMOD_RETURN_FAILURE;
-}
-
-/*
- * stop function. called when the kext should be unloaded. unloading can be prevented by
- * returning failure
- */
-static kern_return_t tap_module_stop(struct kmod_info *ki, void *data)
-{
-	if (mgr != NULL) {
-		if (!mgr->shutdown())
-			return KMOD_RETURN_FAILURE;
-
-		delete mgr;
-		mgr = NULL;
-	}
-
-	/* clean up locking */
-	tt_lock::shutdown();
-
-	mem_shutdown();
-
-	return KMOD_RETURN_SUCCESS;
-} 
-
-KMOD_DECL(tap, TAP_KEXT_VERSION)
+#include <stdint.h>
 
 }
+
+/* Memory manager initalization and shutdown */
+void mem_initialize(const char *name);
+void mem_shutdown();
+
+/* Memory allocation functions */
+void *mem_alloc(uint32_t size);
+void mem_free(void *addr, uint32_t size);
+
+#endif /* __MEM_H__ */
 

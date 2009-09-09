@@ -28,6 +28,7 @@
  */
 
 #include "tuntap.h"
+#include "mem.h"
 
 extern "C" {
 
@@ -35,7 +36,6 @@ extern "C" {
 #include <sys/param.h>
 #include <sys/syslog.h>
 #include <sys/systm.h>
-#include <sys/malloc.h>
 
 #include <vm/vm_kern.h>
 
@@ -107,9 +107,9 @@ tuntap_manager::initialize(unsigned int count, char *family)
 	}
 
 	/* allocate memory for the interface instance table */
-	tuntaps = (tuntap_interface **) kalloc(count * sizeof(tuntap_interface *));
-
-	if (tuntaps == NULL) {
+	tuntaps = (tuntap_interface **) mem_alloc(count * sizeof(tuntap_interface *));
+	if (tuntaps == NULL)
+	{
 		log(LOG_ERR, "%s: no memory!\n", family);
 		return false;
 	}
@@ -202,13 +202,12 @@ tuntap_manager::shutdown()
 		unsigned int old_number;
 		do {
 			old_number = cdev_gate.get_ticket_number();
-			l.unlock();
 
 			dprintf("tuntap_manager: waiting for other threads to give up.\n");
 
 			/* wait one second */
-			delay(1000000);
-			l.lock();
+			cdev_gate.sleep(&cdev_gate, 1000000);
+
 		} while (cdev_gate.get_ticket_number() != old_number);
 
 		/* I hope it is safe to unload now. */
@@ -228,7 +227,7 @@ tuntap_manager::~tuntap_manager()
 
 	/* free memory */
 	if (tuntaps != NULL)
-		kfree(tuntaps, count * sizeof(tuntap_interface *));
+		mem_free(tuntaps, count * sizeof(tuntap_interface *));
 }
 
 /* service method dispatchers */
