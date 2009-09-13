@@ -1,4 +1,10 @@
 
+September 13, 2009:
+ o Change linker options to produce 64 bit kext bundle for Snow Leopard.
+ o Switch from kmem_alloc and friends to OSAlloc for memory allocation and
+   avoid the delay() call. Respective symbols are not available on 64 bit
+   kernels anymore.
+
 September 5, 2009:
  o Initial Snow Leopard port. Thanks to various people contributing patches in
    the bugtracker. The new official version can only be compiled on Snow
