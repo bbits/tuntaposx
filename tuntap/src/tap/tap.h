@@ -65,7 +65,7 @@ class tap_interface : public tuntap_interface {
 		} attached_protos[MAX_ATTACHED_PROTOS];
 
 		/* initializes the interface */
-		virtual bool initialize(unsigned short major, unsigned short unit);
+		virtual bool initialize(unsigned short major, unsigned short unit, int32_t os_major_version);
 
 		/* shuts the interface down */
 		virtual void shutdown();

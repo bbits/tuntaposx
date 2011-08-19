@@ -1,7 +1,8 @@
 /*
  * ip tunnel/ethertap device for MacOSX. Common functionality of tap_interface and tun_interface.
  *
- * struct ifaddr definition borrowed from the kernel code.
+ * struct ifaddr definition borrowed from various versions of the kernel code
+ * as was the definition of lck_mtx_t
  */
 /*
  * Copyright (c) 2006, 2007, 2008 Mattias Nissler <mattias.nissler@gmx.de>
@@ -99,15 +100,14 @@ extern "C" {
 struct ifaddr {
 	struct	sockaddr *ifa_addr;	/* address of interface */
 	struct	sockaddr *ifa_dstaddr;	/* other end of p-to-p link */
-#define	ifa_broadaddr	ifa_dstaddr	/* broadcast address interface */
 	struct	sockaddr *ifa_netmask;	/* used to determine subnet */
 	struct	ifnet *ifa_ifp;		/* back-pointer to interface */
 	TAILQ_ENTRY(ifaddr) ifa_link;	/* queue macro glue */
 	void	(*ifa_rtrequest)	/* check or clean routes (+ or -)'d */
 		(int, struct rtentry *, struct sockaddr *);
-	u_short	ifa_flags;		/* mostly rt_flags for cloning */
-	int	ifa_refcnt;/* 32bit ref count, use ifaref, ifafree */
-	int	ifa_metric;		/* cost of going out this interface */
+	u_short ifa_flags;		/* mostly rt_flags for cloning */
+	int ifa_refcnt;/* 32bit ref count, use ifaref, ifafree */
+	int ifa_metric;		/* cost of going out this interface */
 #ifdef notdef
 	struct	rtentry *ifa_rt;	/* XXXX for ROUTETOIF ????? */
 #endif
@@ -116,7 +116,44 @@ struct ifaddr {
 	u_long	ifa_debug;		/* debug flags */
 };
 
+
+
+/* This is one of those opaque kernel types that will probably change tomorrow. */
+typedef struct {
+	unsigned long		opaque[2];
+} lion_lck_mtx_t;
+
+/* The ifaddr structure changed in the XNU kernel that shipped with OSX 10.7. 
+   Here's the new definition. */
+struct ifaddr_lion {
+	/* 
+	  This is the actual declaration for ifa_lock in the lion kernel sources:
+	  decl_lck_mtx_data(, ifa_lock);	
+	*/
+	lion_lck_mtx_t ifa_lock;	/* lock for ifaddr -- hacked to match lion without compiler complications */
+	uint32_t	ifa_refcnt; /* ref count, use IFA_{ADD,REM}REF */
+	uint32_t	ifa_debug;	/* debug flags */
+	struct sockaddr *ifa_addr;	/* address of interface */
+	struct sockaddr *ifa_dstaddr;	/* other end of p-to-p link */
+	struct sockaddr *ifa_netmask;	/* used to determine subnet */
+	struct ifnet	*ifa_ifp;	/* back-pointer to interface */
+	TAILQ_ENTRY(ifaddr) ifa_link;	/* queue macro glue */
+	void (*ifa_rtrequest)		/* check or clean routes (+ or -)'d */
+		(int, struct rtentry *, struct sockaddr *);
+	uint32_t	ifa_flags;	/* mostly rt_flags for cloning */
+	int32_t		ifa_metric; /* cost of going out this interface */
+	void (*ifa_free)(struct ifaddr *); /* callback fn for freeing */
+	void (*ifa_trace)		/* callback fn for tracing refs */
+		(struct ifaddr *, int);
+	void (*ifa_attached)(struct ifaddr *); /* callback fn for attaching */
+	void (*ifa_detached)(struct ifaddr *); /* callback fn for detaching */
+};
+
+
 }
+
+/* this ifdef is found in all versions of the XNU kernel that tuntap supports */
+#define ifa_broadaddr	ifa_dstaddr /* broadcast address interface */
 
 #endif /* __IFADDR__H */
 

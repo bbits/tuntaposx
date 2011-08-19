@@ -1,10 +1,10 @@
 /*
- * ip tunnel device for MacOSX.
- *
- * Kext definition (it is a mach kmod really...)
+ * Helper routines to determine information about the OS the kext is running under.
  */
+
 /*
  * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 Mattias Nissler <mattias.nissler@gmx.de>
+ * Copyright (c) 2011 Dave Peck <davepeck [at] gmail [dot] com>
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted
  * provided that the following conditions are met:
@@ -27,71 +27,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "tun.h"
-#include "mem.h"
-#include "os_info.h"
+#ifndef __OS_INFO_H__
+#define __OS_INFO_H__
 
 extern "C" {
-  
-#include <sys/param.h>
 
 #include <mach/kmod.h>
 
-static tun_manager *mgr;
-
-/*
- * start function. called when the kext gets loaded.
- */
-static kern_return_t tun_module_start(struct kmod_info *ki, void *data)
-{
-	mem_initialize(TUN_FAMILY_NAME);
-
-	/* initialize locking */
-	if (!tt_lock::initialize())
-		return KMOD_RETURN_FAILURE;
-
-	/* what OS version is this kext running under? */
-	int32_t os_major_version = get_os_major_version(ki);
-
-	/* create a tun manager that will handle the rest */
-	mgr = new tun_manager();
-
-	if (mgr != NULL) {
-		if (mgr->initialize(TUN_IF_COUNT, TUN_FAMILY_NAME, os_major_version))
-			return KMOD_RETURN_SUCCESS;
-
-		delete mgr;
-		mgr = NULL;
-		/* clean up locking */
-		tt_lock::shutdown();
-	}
-
-	return KMOD_RETURN_FAILURE;
 }
 
-/*
- * stop function. called when the kext should be unloaded. unloading can be prevented by
- * returning failure
- */
-static kern_return_t tun_module_stop(struct kmod_info *ki, void *data)
-{
-	if (mgr != NULL) {
-		if (!mgr->shutdown())
-			return KMOD_RETURN_FAILURE;
+int32_t get_os_major_version(struct kmod_info *ki);
+bool os_major_version_is_lion(int32_t os_major_version);
+bool os_major_version_is_lion_or_later(int32_t os_major_version);
 
-		delete mgr;
-		mgr = NULL;
-	}
-
-	/* clean up locking */
-	tt_lock::shutdown();
-
-	mem_shutdown();
-
-	return KMOD_RETURN_SUCCESS;
-}
-
-KMOD_DECL(tun, TUN_KEXT_VERSION)
-
-}
+#endif /* __OS_INFO_H__ */
 

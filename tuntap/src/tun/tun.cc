@@ -49,12 +49,13 @@ extern "C" {
 
 /* members */
 bool
-tun_interface::initialize(unsigned short major, unsigned short unit)
+tun_interface::initialize(unsigned short major, unsigned short unit, int32_t os_major_version)
 {
 	this->unit = unit;
 	this->family_name = TUN_FAMILY_NAME;
 	this->family = IFNET_FAMILY_TUN;
 	this->type = IFT_OTHER;
+	this->os_major_version = os_major_version;
 	bzero(unique_id, UIDLEN);
 	snprintf(unique_id, UIDLEN, "%s%d", family_name, unit);
 
@@ -389,7 +390,7 @@ tun_manager::shutdown()
 }
 
 bool
-tun_manager::initialize(unsigned int count, char *family)
+tun_manager::initialize(unsigned int count, char *family, int32_t os_major_version)
 {
 	errno_t err;
 
@@ -412,6 +413,6 @@ tun_manager::initialize(unsigned int count, char *family)
 	tuntap_inited = true;
 
 	/* have the superclass handle the rest */
-	return tuntap_manager::initialize(count, family);
+	return tuntap_manager::initialize(count, family, os_major_version);
 }
 

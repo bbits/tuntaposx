@@ -55,12 +55,13 @@ static unsigned char ETHER_BROADCAST_ADDR[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0x
 
 /* members */
 bool
-tap_interface::initialize(unsigned short major, unsigned short unit)
+tap_interface::initialize(unsigned short major, unsigned short unit, int32_t os_major_version)
 {
 	this->unit = unit;
 	this->family_name = TAP_FAMILY_NAME;
 	this->family = IFNET_FAMILY_ETHERNET;
 	this->type = IFT_ETHER;
+	this->os_major_version = os_major_version;
 	bzero(unique_id, UIDLEN);
 	snprintf(unique_id, UIDLEN, "%s%d", family_name, unit);
 

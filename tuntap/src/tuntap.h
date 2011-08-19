@@ -88,6 +88,8 @@ class tuntap_manager {
 		int dev_major;
 		/* family name */
 		char *family;
+		/* major os version */
+		int32_t os_major_version;
 
 		/* wether static members are initialized */
 		static bool statics_initialized;
@@ -101,7 +103,7 @@ class tuntap_manager {
 
 	public:
 		/* sets major device number, allocates the interface table. */
-		bool initialize(unsigned int count, char *family);
+		bool initialize(unsigned int count, char *family, int32_t os_major_version);
 
 		/* tries to shutdown the family. returns true if successful. the manager object may
 		 * not be deleted if this wasn't called successfully.
@@ -195,6 +197,9 @@ class tuntap_interface {
 		static const unsigned int UIDLEN = 20;
 		char unique_id[UIDLEN];
 
+		/* os information */
+		int32_t os_major_version;
+
 		/* synchronization */
 		tt_mutex lock;
 		tt_mutex bpf_lock;
@@ -226,7 +231,7 @@ class tuntap_interface {
 		virtual ~tuntap_interface();
 
 		/* initialize the device */
-		virtual bool initialize(unsigned short major, unsigned short unit) = 0;
+		virtual bool initialize(unsigned short major, unsigned short unit, int32_t os_major_version) = 0;
 
 		/* character device management */
 		virtual bool register_chardev(unsigned short major);

@@ -28,6 +28,7 @@
  */
 
 #include "tuntap.h"
+#include "os_info.h"
 
 #if 0
 #define dprintf(...)			log(LOG_INFO, __VA_ARGS__)
@@ -856,36 +857,65 @@ tuntap_interface::if_output(mbuf_t m)
 errno_t
 tuntap_interface::if_ioctl(u_int32_t cmd, void *arg)
 {
-	dprintf("tuntap: if ioctl: %d\n", (int) (cmd & 0xff));
+	dprintf("tuntap: if_ioctl: cmd = %d\n", (int) (cmd & 0xff));
 
 	switch (cmd) {
 		case SIOCSIFADDR:
 			{
-				dprintf("tuntap: if_ioctl: SIOCSIFADDR\n");
+				dprintf("tuntap: if_ioctl: handling SIOCSIFADDR\n");
 
 				/* Unfortunately, ifconfig sets the address family field of an INET
 				 * netmask to zero. However, this makes mDNSresponder ignore the
 				 * interface. Fix that here. This one is of the category "ugly
 				 * workaround". Dumb Darwin...
 				 *
+				 * Alas, this workaround is necessary even under OSX Lion...
+				 *
 				 * Btw. If you configure other network interfaces using ifconfig,
 				 * you run into the same problem. I still don't know how to make the
 				 * tap devices show up in the network configuration panel...
+				 *
 				 */
-				struct ifaddr *ifa = (struct ifaddr *) arg;
-				if (ifa != NULL && ifa->ifa_netmask != NULL && ifa->ifa_addr != NULL) {
+				 
+				struct sockaddr *ifa_addr = NULL;
+				struct sockaddr *ifa_netmask = NULL;
 
-					dprintf("tuntap: if_ioctl: addr af %d netmask af %d\n",
-							ifa->ifa_netmask->sa_family,
-							ifa->ifa_addr->sa_family);
-
-					if (ifa->ifa_netmask->sa_family != ifa->ifa_addr->sa_family)
-					{
-						/* Fix the address family field of the netmask */
-						dprintf("tuntap: if_ioctl: fixing netmask af.\n");
-						ifa->ifa_netmask->sa_family = ifa->ifa_addr->sa_family;
+				/* the private struct ifaddr changed with OSX 10.7, so make sure we
+				 * choose the right definition -- otherwise kernel panics "R" US.
+				 */
+				if (os_major_version_is_lion_or_later(this->os_major_version)) {
+					dprintf("tuntap: if_ioctl: working with ifaddr_lion struct\n");
+					struct ifaddr_lion *ifa_lion = (struct ifaddr_lion *)arg;
+					if (ifa_lion != NULL) {
+						ifa_addr = ifa_lion->ifa_addr;
+						ifa_netmask = ifa_lion->ifa_netmask;
+					}
+				} else {
+					dprintf("tuntap: if_ioctl: working with pre-lion ifaddr struct\n");
+					struct ifaddr *ifa = (struct ifaddr *)arg;
+					if (ifa != NULL) {
+						ifa_addr = ifa->ifa_addr;
+						ifa_netmask = ifa->ifa_netmask;
 					}
 				}
+
+				/* sanity check */
+				if (ifa_netmask != NULL && ifa_addr != NULL) {
+					dprintf("tuntap: if_ioctl: ifa_netmask->sa_family = %d; ifa_addr->sa_family = %d\n",
+							ifa_netmask->sa_family,
+							ifa_addr->sa_family);
+
+					/* is the ifa_netmask->sa_family busted? 
+					 * ...CONSIDER testing it for AF_UNSPEC rather than != ifa_addr->sa_family 
+					 */
+					if (ifa_netmask->sa_family != ifa_addr->sa_family)
+					{
+						/* Fix the address family field of the netmask */
+						dprintf("tuntap: if_ioctl: fixing ifa_netmask->sa_family.\n");
+						ifa_netmask->sa_family = ifa_addr->sa_family;
+					}
+				}
+				
 				return 0;
 			}
 

@@ -87,11 +87,12 @@ tuntap_manager::initialize_statics()
 }
 
 bool
-tuntap_manager::initialize(unsigned int count, char *family)
+tuntap_manager::initialize(unsigned int count, char *family, int32_t os_major_version)
 {
 	this->count = count;
 	this->family = family;
 	this->tuntaps = NULL;
+	this->os_major_version = os_major_version;
 
 	if (!statics_initialized)
 		initialize_statics();
@@ -125,7 +126,7 @@ tuntap_manager::initialize(unsigned int count, char *family)
 
 		if (tuntaps[i] != NULL)
 		{
-			if (tuntaps[i]->initialize(dev_major, i))
+			if (tuntaps[i]->initialize(dev_major, i, this->os_major_version))
 			{
 				continue;
 			}

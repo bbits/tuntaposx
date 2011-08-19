@@ -29,11 +29,11 @@
 
 #include "tap.h"
 #include "mem.h"
+#include "os_info.h"
 
 extern "C" {
 
 #include <sys/param.h>
-
 #include <mach/kmod.h>
 
 static tap_manager *mgr;
@@ -49,11 +49,14 @@ static kern_return_t tap_module_start(struct kmod_info *ki, void *data)
 	if (!tt_lock::initialize())
 		return KMOD_RETURN_FAILURE;
 
+	/* what OS version is this kext running under? */
+	int32_t os_major_version = get_os_major_version(ki);
+
 	/* create a tap manager that will handle the rest */
 	mgr = new tap_manager();
 
 	if (mgr != NULL) {
-		if (mgr->initialize(TAP_IF_COUNT, (char *) TAP_FAMILY_NAME))
+		if (mgr->initialize(TAP_IF_COUNT, (char *) TAP_FAMILY_NAME, os_major_version))
 			return KMOD_RETURN_SUCCESS;
 
 		delete mgr;

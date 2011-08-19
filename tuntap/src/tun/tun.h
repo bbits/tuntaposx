@@ -57,7 +57,7 @@ class tun_manager : public tuntap_manager {
 
 	public:
 		/* special initalize */
-		virtual bool initialize(unsigned int count, char *family);
+		virtual bool initialize(unsigned int count, char *family, int32_t os_major_version);
 
 		/* special shutdown */
 		virtual bool shutdown();
@@ -86,7 +86,7 @@ class tun_interface : public tuntap_interface {
 		bool prepend_af;
 
 		/* intializes the interface */
-		virtual bool initialize(unsigned short major, unsigned short int unit);
+		virtual bool initialize(unsigned short major, unsigned short int unit, int32_t os_major_version);
 
 		/* shutdown the interface */
 		virtual void shutdown();
