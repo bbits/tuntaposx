@@ -136,17 +136,22 @@ int32_t get_os_major_version(struct kmod_info *ki) {
 }
 
 
-/* Return true if the given version is at precisely OS X Lion */
+/* Return true if the given version is precisely OS X Lion */
 bool os_major_version_is_lion(int32_t os_major_version) {
 	return (os_major_version == 11);
 }
 
 
-/* Return true if the given string is at least OS X Lion */
+/* Return true if the given version is at least OS X Lion */
 bool os_major_version_is_lion_or_later(int32_t os_major_version) {
 	return (os_major_version >= 11);
 }
 
+
+/* Return true if the given version is at least OS X Leopard */
+bool os_major_version_is_leopard_or_later(int32_t os_major_version) {
+  return (os_major_version >= 9);
+}
 
 
 

@@ -39,6 +39,7 @@ extern "C" {
 int32_t get_os_major_version(struct kmod_info *ki);
 bool os_major_version_is_lion(int32_t os_major_version);
 bool os_major_version_is_lion_or_later(int32_t os_major_version);
+bool os_major_version_is_leopard_or_later(int32_t os_major_version);
 
 #endif /* __OS_INFO_H__ */
 

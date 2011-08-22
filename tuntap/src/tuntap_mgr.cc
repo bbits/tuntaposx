@@ -29,6 +29,8 @@
 
 #include "tuntap.h"
 #include "mem.h"
+#include "os_info.h"
+
 
 extern "C" {
 
@@ -101,9 +103,25 @@ tuntap_manager::initialize(unsigned int count, char *family, int32_t os_major_ve
 	auto_lock l(&cdev_gate);
 
 	/* register the switch for the tap character devices */
-	dev_major = cdevsw_add(-1, &mgr_cdevsw);
+	int index = -1;
+	
+	if (os_major_version_is_leopard_or_later(this->os_major_version)) {
+		/* see XNU bsd_stubs.c for a comment on why -12 should be used instead of -1 */
+		index = -12; 
+	}
+	
+	dev_major = cdevsw_add(index, &mgr_cdevsw);
 	if (dev_major == -1) {
 		log(LOG_ERR, "%s: could not register character device switch.\n", family);
+		return false;
+	}
+
+	/* defensive: we're not sure how nchrdev relates to MAX_CDEV */
+	if (dev_major >= MAX_CDEV) {
+		log(LOG_ERR, "%s: got dev_major larger than MAX_CDEV; fail.\n", family);
+		if (cdevsw_remove(dev_major, &mgr_cdevsw) == -1) {
+			log(LOG_ERR, "%s: also failed to remove dev_major with cdevsw_remove.\n", family);
+		}
 		return false;
 	}
 
